@@ -12,11 +12,12 @@ volumes:
 services:
   prometheus:
     image: prom/prometheus:latest
+    user: root
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - /home/noah/Documents/Sanayco/Monitoring/prometheus:/etc/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command: "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
@@ -25,8 +26,8 @@ services:
     container_name: nginx
     image: nginx:latest
     volumes:
-      - ./nginx/config.conf:/etc/nginx/nginx.conf
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/config.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
     restart: unless-stopped
@@ -66,6 +67,8 @@ services:
     restart: unless-stopped
     volumes:
       - /:/host:ro,rslave
+    ports:
+      - "9100:9100"
 
   alertmanager:
     container_name: alertmanager
@@ -74,8 +77,8 @@ services:
     ports:
       - "9093:9093"
     volumes:
-      - /home/noah/Documents/Sanayco/Monitoring/alertmanager:/config
-      - alertmanager-data:/data
+      - ./alertmanager:/config
+      - ./alertmanager-data:/data
     command: --config.file=/config/alertmanager.yml --log.level=debug
 
   blackbox_exporter:
@@ -86,7 +89,7 @@ services:
     ports:
       - "9115:9115"
     volumes:
-      - /home/noah/Documents/Sanayco/Monitoring/blackbox:/config
+      - ./blackbox:/config
 
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:0.10.0
